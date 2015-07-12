@@ -108,7 +108,7 @@ function stopApp() {
  * receiver CastMessageBus message handler will be invoked
  * @param {string} message A message string
  */
-function sendMessage() {
+function sendPlaying() {
   var message = $(".current").text();
   if (session!=null) {
     session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
