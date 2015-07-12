@@ -108,16 +108,15 @@ function stopApp() {
  * @param {string} message A message string
  */
 function sendPlaying() {
-  var message = $(".current").text();
+  var nowplaying = $(".current").text();
   var url_c = url;
+  var data = {"nowplaying": nowplaying, "url": url  };
   if (session != null) {
-    session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
-    session.sendMessage("" +namespace+ ".url", message, onSuccess.bind(this, "url sent: " + url_c), onError);
+    session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + data), onError);
   } else {
     chrome.cast.requestSession(function(e) {
       session = e;
       session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
-      session.sendMessage("" +namespace + ".url", message, onSuccess.bind(this, "url sent: " + url_c), onError);
     }, onError);
   }
 }
