@@ -1,97 +1,146 @@
-//http://blog.matthewdfuller.com/2014/05/chromecast-development-tutorial-your.html
-
+var applicationID = 'B07518FC';
+var namespace = 'urn:x-cast:com.google.cast.sample.helloworld';
 var session = null;
 
+/**
+ * Call initialization for Cast
+ */
+window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
+  if (loaded) {
+    initializeCastApi();
+  } else {
+    console.log(errorInfo);
+  }
+}
+
+/**
+ * initialization
+ */
 function initializeCastApi() {
-  var applicationID = chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID;
   var sessionRequest = new chrome.cast.SessionRequest(applicationID);
   var apiConfig = new chrome.cast.ApiConfig(sessionRequest,
     sessionListener,
     receiverListener);
-  chrome.cast.initialize(apiConfig, onInitSuccess, onInitError);
-}
 
-function sessionListener(e) {
-  session = e;
-  console.log('New session');
-  if (session.media.length != 0) {
-    console.log('Found ' + session.media.length + ' sessions.');
-  }
-}
+  chrome.cast.initialize(apiConfig, onInitSuccess, onError);
+};
 
-function receiverListener(e) {
-  if (e === 'available') {
-    console.log("Chromecast was found on the network.");
-  } else {
-    console.log("There are no Chromecasts available.");
-  }
-}
-
+/**
+ * initialization success callback
+ */
 function onInitSuccess() {
-  console.log("Initialization succeeded");
+  appendMessage("onInitSuccess");
 }
 
-function onInitError() {
-  console.log("Initialization failed");
+/**
+ * initialization error callback
+ */
+function onError(message) {
+  appendMessage("onError: "+JSON.stringify(message));
 }
 
-
-function launchApp() {
-  console.log("Launching the Chromecast App...");
-  chrome.cast.requestSession(onRequestSessionSuccess, onLaunchError);
+/**
+ * generic success callback
+ */
+function onSuccess(message) {
+  appendMessage("onSuccess: "+message);
 }
 
-function onRequestSessionSuccess(e) {
-  console.log("Successfully created session: " + e.sessionId);
-  session = e;
-}
-
-function onLaunchError() {
-  console.log("Error connecting to the Chromecast.");
-}
-
-//media stuff
-
-function onRequestSessionSuccess(e) {
-  console.log("Successfully created session: " + e.sessionId);
-  session = e;
-  loadMedia();
-}
-
-function loadMedia() {
-  if (!session) {
-    console.log("No session.");
-    return;
-  }
-
-  var mediaInfo = new
-  chrome.cast.media.MediaInfo('http://i.imgur.com/mOnvOJG.png');
-  mediaInfo.contentType = 'image/png';
-
-  var request = new chrome.cast.media.LoadRequest(mediaInfo);
-  request.autoplay = true;
-
-  session.loadMedia(request, onLoadSuccess, onLoadError);
-}
-
-function onLoadSuccess() {
-  console.log('Successfully loaded image.');
-}
-
-function onLoadError() {
-  console.log('Failed to load image.');
-}
-
-//stop
-function stopApp() {
-  console.log('attempting to stop');
-  session.stop(onStopAppSuccess, onStopAppError);
-}
-
+/**
+ * callback on success for stopping app
+ */
 function onStopAppSuccess() {
-  console.log('Successfully stopped app.');
+  appendMessage('onStopAppSuccess');
 }
 
-function onStopAppError() {
-  console.log('Error stopping app.');
+/**
+ * session listener during initialization
+ */
+function sessionListener(e) {
+  appendMessage('New session ID:' + e.sessionId);
+  session = e;
+  session.addUpdateListener(sessionUpdateListener);
+  session.addMessageListener(namespace, receiverMessage);
+}
+
+/**
+ * listener for session updates
+ */
+function sessionUpdateListener(isAlive) {
+  var message = isAlive ? 'Session Updated' : 'Session Removed';
+  message += ': ' + session.sessionId;
+  appendMessage(message);
+  if (!isAlive) {
+    session = null;
+  }
+};
+
+/**
+ * utility function to log messages from the receiver
+ * @param {string} namespace The namespace of the message
+ * @param {string} message A message string
+ */
+function receiverMessage(namespace, message) {
+  appendMessage("receiverMessage: "+namespace+", "+message);
+};
+
+/**
+ * receiver listener during initialization
+ */
+function receiverListener(e) {
+  if( e === 'available' ) {
+    appendMessage("receiver found");
+  }
+  else {
+    appendMessage("receiver list empty");
+  }
+}
+
+/**
+ * stop app/session
+ */
+function stopApp() {
+  session.stop(onStopAppSuccess, onError);
+}
+
+/**
+ * send a message to the receiver using the custom namespace
+ * receiver CastMessageBus message handler will be invoked
+ * @param {string} message A message string
+ */
+function sendMessage(message) {
+  if (session!=null) {
+    session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
+  }
+  else {
+    chrome.cast.requestSession(function(e) {
+        session = e;
+        session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
+      }, onError);
+  }
+}
+
+/**
+ * append message to debug message window
+ * @param {string} message A message string
+ */
+function appendMessage(message) {
+  console.log(message);
+  var dw = document.getElementById("debugmessage");
+  dw.innerHTML += '\n' + JSON.stringify(message);
+};
+
+/**
+ * utility function to handle text typed in by user in the input field
+ */
+function update() {
+  sendMessage(document.getElementById("input").value);
+}
+
+/**
+ * handler for the transcribed text from the speech input
+ * @param {string} words A transcibed speech string
+ */
+function transcribe(words) {
+  sendMessage(words);
 }
