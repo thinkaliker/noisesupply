@@ -109,24 +109,15 @@ function stopApp() {
  */
 function sendPlaying() {
   var message = $(".current").text();
+  var url = track.permalink_url;
   if (session != null) {
     session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
+    session.sendMessage(namespace + ".url", message, onSuccess.bind(this, "url sent: " + url), onError);
   } else {
     chrome.cast.requestSession(function(e) {
       session = e;
       session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
-    }, onError);
-  }
-}
-
-function sendURL() {
-    var url = track.permalink_url;
-  if (session != null) {
-    session.sendMessage(namespace + ".url", message, onSuccess.bind(this, "url sent: " + message), onError);
-  } else {
-    chrome.cast.requestSession(function(e) {
-      session = e;
-      session.sendMessage(namespace + ".url", message, onSuccess.bind(this, "url sent: " + message), onError);
+      session.sendMessage(namespace + ".url", message, onSuccess.bind(this, "url sent: " + url), onError);
     }, onError);
   }
 }
