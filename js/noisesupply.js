@@ -1,3 +1,4 @@
+var playTrack = {};
 // Load everything...
 Zepto(function($){
 
