@@ -112,11 +112,11 @@ function sendPlaying() {
   var url_c = url;
   var data = {"nowplaying": nowplaying, "url": url  };
   if (session != null) {
-    session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + data), onError);
+    session.sendMessage(namespace, data, onSuccess.bind(this, "Message sent: " + data), onError);
   } else {
     chrome.cast.requestSession(function(e) {
       session = e;
-      session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
+      session.sendMessage(namespace, data, onSuccess.bind(this, "Message sent: " + message), onError);
     }, onError);
   }
 }
