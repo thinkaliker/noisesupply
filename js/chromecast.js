@@ -112,12 +112,12 @@ function sendPlaying() {
   var url_c = url;
   if (session != null) {
     session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
-    session.sendMessage(namespace + ".url", message, onSuccess.bind(this, "url sent: " + url_c), onError);
+    session.sendMessage("" +namespace+ ".url", message, onSuccess.bind(this, "url sent: " + url_c), onError);
   } else {
     chrome.cast.requestSession(function(e) {
       session = e;
       session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
-      session.sendMessage(namespace + ".url", message, onSuccess.bind(this, "url sent: " + url_c), onError);
+      session.sendMessage("" +namespace + ".url", message, onSuccess.bind(this, "url sent: " + url_c), onError);
     }, onError);
   }
 }

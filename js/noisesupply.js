@@ -1,4 +1,5 @@
 var playTrack = {};
+var url;
 // Load everything...
 Zepto(function($){
 
