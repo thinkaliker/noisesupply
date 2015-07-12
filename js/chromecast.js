@@ -43,7 +43,7 @@ function onError(message) {
  * generic success callback
  */
 function onSuccess(message) {
-  consol.log("onSuccess: "+message);
+  console.log("onSuccess: "+message);
 }
 
 /**

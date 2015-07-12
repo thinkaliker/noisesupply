@@ -119,8 +119,6 @@ function trackPlay(url) {
           player.audio.volume = localStorage.volume;
         }
 
-      sendPlaying();
-
     }
   });
 }
@@ -265,6 +263,7 @@ function playTrack(url) {
                       });
 
                 }
+                sendPlaying();
             
             }
 
