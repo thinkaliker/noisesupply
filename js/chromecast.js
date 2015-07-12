@@ -9,7 +9,7 @@ function initializeCastApi() {
     sessionListener,
     receiverListener);
   chrome.cast.initialize(apiConfig, onInitSuccess, onInitError);
-};
+}
 
 function sessionListener(e) {
   session = e;
@@ -35,10 +35,6 @@ function onInitError() {
   console.log("Initialization failed");
 }
 
-$(".settingCast").click(function() {
-  console.log('attempting to start');
-  launchApp();
-});
 
 function launchApp() {
   console.log("Launching the Chromecast App...");
@@ -87,10 +83,6 @@ function onLoadError() {
 }
 
 //stop
-$('.stopme').click(function() {
-  stopApp();
-});
-
 function stopApp() {
   console.log('attempting to stop');
   session.stop(onStopAppSuccess, onStopAppError);
