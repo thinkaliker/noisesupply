@@ -1,5 +1,5 @@
 var applicationID = 'B07518FC';
-var namespace = 'urn:x-cast:com.google.cast.sample.helloworld';
+var namespace = 'urn:x-cast:noise.supply';
 var session = null;
 
 /**
@@ -36,14 +36,14 @@ function onInitSuccess() {
  * initialization error callback
  */
 function onError(message) {
-  console.log("onError: "+JSON.stringify(message));
+  console.log("onError: " + JSON.stringify(message));
 }
 
 /**
  * generic success callback
  */
 function onSuccess(message) {
-  console.log("onSuccess: "+message);
+  console.log("onSuccess: " + message);
 }
 
 /**
@@ -81,17 +81,16 @@ function sessionUpdateListener(isAlive) {
  * @param {string} message A message string
  */
 function receiverMessage(namespace, message) {
-  console.log("receiverMessage: "+namespace+", "+message);
+  console.log("receiverMessage: " + namespace + ", " + message);
 };
 
 /**
  * receiver listener during initialization
  */
 function receiverListener(e) {
-  if( e === 'available' ) {
+  if (e === 'available') {
     console.log("receiver found");
-  }
-  else {
+  } else {
     console.log("receiver list empty");
   }
 }
@@ -110,13 +109,24 @@ function stopApp() {
  */
 function sendPlaying() {
   var message = $(".current").text();
-  if (session!=null) {
+  if (session != null) {
     session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
-  }
-  else {
+  } else {
     chrome.cast.requestSession(function(e) {
-        session = e;
-        session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
-      }, onError);
+      session = e;
+      session.sendMessage(namespace, message, onSuccess.bind(this, "Message sent: " + message), onError);
+    }, onError);
+  }
+}
+
+function sendURL() {
+    var url = track.permalink_url;
+  if (session != null) {
+    session.sendMessage(namespace + ".url", message, onSuccess.bind(this, "url sent: " + message), onError);
+  } else {
+    chrome.cast.requestSession(function(e) {
+      session = e;
+      session.sendMessage(namespace + ".url", message, onSuccess.bind(this, "url sent: " + message), onError);
+    }, onError);
   }
 }
